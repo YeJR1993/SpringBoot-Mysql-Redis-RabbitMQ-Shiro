@@ -1,0 +1,52 @@
+项目架构：
+	框架: Spring Boot 
+	持久层框架 : Mybatis
+	数据库连接池: Druid
+	分页插件: Pagehelper
+	缓存: Redis 
+	权限管理: Shiro
+	后台数据格式校验: Validation
+	模板引擎: Freemarker
+	消息中间件: RabbitMQ
+	检索引擎: Elasticsearch
+	
+异步任务：
+	针对耗时且不影响结果的操作可以使用异步
+	1：在Application中开启异步任务注解 @EnableAsync
+	2：在耗时操作的Service中加上注解 @Async
+	
+定时任务：
+	1：在Application中开启定时任务注解@EnableScheduling
+	2：在定时操作的Service中加上注解 @Scheduled(cron = "0 0/1 * * * ?")
+
+权限插件（shiro）:
+	可以实现应用中用户的权限控制，根据用户具有的权限以及角色，使用页面以及后台注解的方式控制具体按钮的权限
+	1、登入认证与权鉴需要重写Realm	
+	2、登入的缓存结合redis需要重新cache与session，这里注意存放时存入json格式未成功
+	3、重写了UsernamePasswordToken 主要是给登入添加属性
+	4、spring boot 中使用 ShiroConfig的方式配置shiro，包括重写的Realm、cache、session等
+	
+缓存组件（shiro）:
+	可以将用户增删改查的数据放入缓存中，提升访问速度，减轻服务器压力。本项目还未实现不同用户的cache同步问题，暂时不建议多用
+	1、引入spring-boot-starter-data-redis jar包之后，容器中保存的是RedisCacheManager
+	2、RedisCacheManager 帮我们创建RedisCache 来作为缓存组件，RedisCache通过操作redis缓存数据
+	3、当k-v都是object时是利用序列化保存的，需要RedisConfig来配置序列化方式
+	
+消息组件（RabbitMQ）:
+	多任务并且花费大量时间，但是不需要实时反馈的时候可以使用mq，例如：监控应用中抛出的异常，邮件通知管理员； 注册用户时候，发送激活邮件；
+		订单系统和库存系统，用户在下单后发送消息到队列中，库存系统在监听道消息之后进行存储操作；...
+	1、RabbitMqConfig配置好连接ConnectionFactory、配置好RabbitTemplate的数据格式转换规则
+	2、RabbitMqPublisherConfig配置好交换器Exchange、消息队列Queue、以及交换器与消息队列进行绑定
+	3、RabbitMqConsumerTip定义好针对消息队列的监听，不需要关系是谁发的消息，定义好对收到的消息的处理
+	4、RabbitMqSender 定义好发送的方法以及发送之后的确认方法
+	
+检索组件（Elasticsearch）:
+	对于需要频繁搜索的数据，比如帖子，订单之类的表在ElasticSearch和Mysql都存一份。这里mysql中可以存储详细信息，es中存储相应的id和检索需要用到的信息，
+		然后检索出来之后，再去数据库查询详细数据。也可以将这些数据都存es中，直接查询使用es中的数据。
+	一个 ElasticSearch 集群可以 包含多个“索引”，相应的每个索引可以包含多个“类型”。这些不同的类型存储着多个json格式的“文档”，每个文档又有 多个“属性”。 类似Mysql关系：
+		索引-数据库       类型-表        文档-表中的记录     属性-列
+	spring boot 支持两个集成ES的方式，
+		1：Jest方式，利用RestAPI方式，使用的是http协议； 
+		2：使用spring data 客户端方式，需要注意Spring Data ElasticSearch必须与ElasticSearch版本相匹配，spring-data-elasticsearch基于tcp协议连接方式
+		
+	

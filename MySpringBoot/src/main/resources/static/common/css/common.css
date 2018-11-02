@@ -1,0 +1,76 @@
+input::-webkit-input-placeholder {
+	font-size: 13px;
+}
+
+.bodyColor {
+	background-color: rgb(233, 236, 243);	
+}
+
+.activeMenu {
+	color: #23abf0 !important;
+}
+
+.fullHeight {
+	height: 100%;
+}
+
+.contentMinHight {
+	min-height: 100%;
+}
+
+.contentBody {
+	overflow: inherit;
+}
+
+.headHeight {
+	height: 65px !important;
+}
+
+.form-top {
+	margin-top: 20px;
+}
+
+.required {
+	color: red;
+	margin-right: 5px;
+}
+
+.error {
+	color: red;
+	font-size: 13px;
+}
+
+.groupSelect {
+	display: inline-block;
+	padding-right: 10px;
+	margin-top: 7px;
+}
+
+.selabel {
+	padding-right: 10px
+}
+
+.click{
+	cursor:pointer !important;
+}
+
+.upfile-a{
+	margin-left: 10px;
+}
+
+.upfile-img{
+	width:100px;
+}
+
+.upfile-div {
+	margin-bottom:5px;
+}
+
+.upfile-span {
+	width: 200px;
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    float: left;
+}

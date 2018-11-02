@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shanghai.modules.sys.dao.RoleDao">
+	
+	<sql id="roleColumns">
+		a.id AS id,
+		a.role_name AS roleName,
+		a.is_admin AS isAdmin,
+		a.status AS status
+	</sql>
+	
+	<!-- 角色以及该角色对应的菜单 -->
+	<resultMap id="roleResult" type="Role">
+		<id property="id" column="id" />
+		<result property="roleName" column="roleName" />
+		<result property="isAdmin" column="isAdmin" />
+		<result property="status" column="status" />
+		
+        <!-- 查询子模块collection：查询集合 -->  
+        <collection property="menus" column="{id=id, isAdmin=isAdmin}" ofType="Menu" select="getMenuIds" />
+        
+	</resultMap>
+	
+	<!-- resultMap中的 collection -->
+	<select id="getMenuIds" parameterType="Map" resultType="Menu">
+		<if test="isAdmin == 0">
+			select menu_id AS id from sys_role_menu where role_id = #{id}  
+		</if>
+		<if test="isAdmin == 1">
+			SELECT id FROM sys_menu ORDER BY sort
+		</if>
+    </select> 
+    
+    <!-- 通过ID获取角色信息 -->
+	<select id="get" resultMap="roleResult">
+		SELECT <include refid="roleColumns"/> FROM sys_role a WHERE a.id = #{id}
+	</select>
+	
+	<!-- 通过roleName获取角色信息 -->
+	<select id="getByRoleName" resultMap="roleResult">
+		SELECT <include refid="roleColumns"/> FROM sys_role a WHERE a.role_name = #{roleName}
+	</select>
+	
+	<!-- 获取所有角色信息，用作分页 -->
+	<select id="findList" resultType="Role">
+		SELECT <include refid="roleColumns"/> FROM sys_role a
+		<where>
+            <if test="roleName != null">
+               AND a.role_name LIKE concat('%',#{roleName},'%')
+            </if>
+            <if test="isAdmin != null and isAdmin != -1">
+               AND a.is_admin = #{isAdmin}
+            </if>
+            <if test="status != null">
+               AND a.status = #{status}
+            </if>
+        </where>
+	</select>
+	
+	<!-- 获取所有角色并对应用户 -->
+	<select id="findUserAllRole" resultType="Role">
+		SELECT r.id, r.role_name roleName, r.is_admin isAdmin, r.status, 
+		(CASE WHEN ur.user_id IS NULL THEN '' ELSE 'checked' END ) AS checkbox  
+		FROM sys_role r 
+		LEFT JOIN sys_user_role ur 
+		ON (r.id = ur.role_id AND ur.user_id = #{userId}) WHERE r.status = 1  ORDER BY r.id
+	</select>
+	
+	<!-- 插入角色 -->
+	<insert id="insert"  parameterType="Role" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO sys_role(
+			role_name,
+			is_admin,
+			status
+		) VALUES (
+			#{roleName},
+			#{isAdmin},
+			#{status}
+		)
+	</insert>
+	
+	
+	<!-- 更新角色 -->
+	<update id="update">
+		UPDATE sys_role SET 
+			role_name = #{roleName},
+			is_admin = #{isAdmin},
+			status = #{status}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 根据ID删除角色  -->
+	<delete id="delete">
+		DELETE FROM sys_role WHERE id = #{id}
+	</delete>
+	
+	<!-- 删除角色和菜单关联表数据 -->
+	<delete id="deleteRoleMenu">
+		DELETE FROM sys_role_menu WHERE role_id = #{id}
+	</delete>
+	
+	<!-- 插入角色和菜单关联表数据 -->
+	<insert id="insertRoleMenu">
+		INSERT INTO sys_role_menu(role_id, menu_id)
+		<foreach collection="menus" item="menu" separator=" union all ">
+			SELECT #{id}, #{menu.id} FROM dual
+		</foreach>
+	</insert>
+	
+	<!-- 删除角色和用户关联表数据 -->
+	<delete id="deleteRoleUser">
+		DELETE FROM sys_user_role WHERE role_id = #{id}
+	</delete>
+	
+</mapper>

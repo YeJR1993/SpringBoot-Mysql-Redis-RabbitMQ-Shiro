@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shanghai.modules.sys.dao.MenuDao">
+	
+	<sql id="menuColumns">
+		a.id AS id,
+		a.parent_id AS parentId,
+		a.name AS name,
+		a.sort AS sort,
+		a.icon AS icon,
+		a.href AS href,
+		a.is_show AS isShow,
+		a.permission AS permission
+	</sql>
+	
+	<!-- 菜单及其子父菜单 -->
+	<resultMap id="menuResult" type="Menu">
+		<id property="id" column="id" />
+		<result property="parentId" column="parentId" />
+		<result property="name" column="name" />
+		<result property="sort" column="sort" />
+		<result property="icon" column="icon" />
+		<result property="href" column="href" />
+		<result property="isShow" column="isShow" />
+		<result property="permission" column="permission" />
+		
+		<!-- 查询父模块association：查询单个对象-->  
+        <association property="parent" column="parentId" select="getParent" />  
+		
+        <!-- 查询子模块collection：查询集合 -->  
+        <collection property="children" column="id" select="getChildren" /> 
+        
+	</resultMap>
+	
+	<!-- resultMap 中的association， 返回的结果是resultType="Menu"，不返回resultMap="menuResult" 否则会造成循环遍历 -->
+	<select id="getParent" parameterType="String" resultType="Menu">  
+        select <include refid="menuColumns"/> from sys_menu a where a.id = #{parentId}  
+    </select>  
+	
+	<!-- resultMap 中的collection， 返回结果resultMap="menuResult"， 这样可以继续查询子节点的子节点 -->
+	<select id="getChildren" parameterType="String" resultMap="menuResult">  
+        select <include refid="menuColumns"/> from sys_menu a where a.parent_id = #{id} ORDER BY sort 
+    </select>  
+	
+	<!-- 按条件查询所有，一般用作分页 -->
+	<select id="findList" resultType="Menu">
+		SELECT
+			<include refid="menuColumns"/>
+		FROM sys_menu a
+		<where>
+            <if test="id != null">
+               AND a.id != #{id}
+            </if>
+            <if test="isShow != null">
+               AND a.is_show = #{isShow}
+            </if>
+        </where>
+		ORDER BY a.sort
+	</select>
+	
+	<!-- 查询某一个用户拥有的菜单 -->
+	<select id="findByUserId"  resultType="Menu">
+		SELECT DISTINCT
+			<include refid="menuColumns"/>, p.id AS "parent.name"
+		FROM sys_menu a
+		LEFT JOIN sys_menu p ON p.id = a.parent_id
+		JOIN sys_role_menu rm ON rm.menu_id = a.id
+		JOIN sys_role r ON r.id = rm.role_id AND r.status=1
+		JOIN sys_user_role ur ON ur.role_id = r.id
+		JOIN sys_user u ON u.id = ur.user_id AND u.id = #{userId}
+		<where>
+            <if test="isShow != null">
+               AND a.is_show = #{isShow}
+            </if>
+        </where>
+		ORDER BY a.sort
+	</select>
+	
+	<!-- 通过key-value查询 -->	
+	<select id="findUniqueByProperty"  resultMap="menuResult" statementType="STATEMENT">
+		SELECT <include refid="menuColumns"/> FROM sys_menu a WHERE ${column} = ${value}
+	</select>
+	
+	<!-- 通过ID查询菜单信息 -->
+	<select id="get" resultMap="menuResult">
+		SELECT <include refid="menuColumns"/> FROM sys_menu a WHERE a.id = #{id}
+	</select>
+	
+	<!-- 插入菜单 -->
+	<insert id="insert"  parameterType="Menu" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO sys_menu(
+			parent_id,
+			name,
+			icon,
+			sort,
+			href,
+			is_show,
+			permission
+		) VALUES (
+			#{parentId},
+			#{name},
+			#{icon},
+			#{sort},
+			#{href},
+			#{isShow},
+			#{permission}
+		)
+	</insert>
+	
+	<!-- 更新菜单信息 -->
+	<update id="update">
+		UPDATE sys_menu SET 
+			parent_id = #{parentId},
+			name = #{name}, 
+			icon = #{icon},
+			sort = #{sort},
+			href = #{href},
+			is_show = #{isShow},
+			permission = #{permission}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 根据ID删除菜单  -->
+	<delete id="delete">
+		DELETE FROM sys_menu WHERE id = #{id}
+	</delete>
+	
+	<!-- 删除菜单角色对应关系 -->
+	<delete id="deleteMenuRole">
+		DELETE FROM sys_role_menu WHERE menu_id = #{id}
+	</delete>
+</mapper>

@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Implementation-Title: MySpringBoot
+Implementation-Version: 0.0.1-SNAPSHOT
+Built-By: YeJR
+Implementation-Vendor-Id: com.shanghai.modules
+Build-Jdk: 1.8.0_101
+Implementation-URL: https://projects.spring.io/spring-boot/#/spring-bo
+ ot-starter-parent/MySpringBoot
+Created-By: Maven Integration for Eclipse
+

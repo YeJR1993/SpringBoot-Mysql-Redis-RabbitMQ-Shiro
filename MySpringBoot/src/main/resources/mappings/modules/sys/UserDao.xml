@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shanghai.modules.sys.dao.UserDao">
+	
+	<sql id="userColumn" >
+    	id AS id, 
+    	username AS username, 
+    	password AS password,
+    	phone AS phone,
+    	headImg AS headImg,
+    	startTime AS startTime,
+    	endTime AS endTime
+  	</sql>
+  	
+  	<sql id="roleColumn" >
+    	r.id AS id, 
+    	r.role_name AS roleName, 
+    	r.is_admin AS isAdmin,
+    	r.status AS status
+  	</sql>
+	
+	<!-- 用户及角色结果集 -->
+	<resultMap id="resultMap" type="User">
+		<id column="id" property="id"/>
+		<result column="username" property="username" />
+		<result column="password" property="password" />
+		<result column="phone" property="phone" />
+		<result column="headImg" property="headImg" />
+		<result column="startTime" property="startTime" />
+		<result column="endTime" property="endTime" />
+		
+		<collection property="roles" ofType="com.shanghai.modules.sys.entity.Role" select="getRoles" column="id">
+			<id column="id" property="id"/>
+			<result column="roleName" property="roleName" />
+			<result column="status" property="status" />
+		</collection>
+	</resultMap>
+	
+	<!-- resultMap中的collection -->
+	<select id="getRoles" resultType="com.shanghai.modules.sys.entity.Role" >
+		SELECT 
+			<include refid="roleColumn" /> 
+		FROM sys_role r LEFT JOIN sys_user_role ur ON r.id = ur.role_id 
+		WHERE ur.user_id = #{id}
+	</select>
+	
+	<!-- 通过用户名查询用户信息 -->
+	<select id="getUserByName" resultMap="resultMap" >
+	    SELECT <include refid="userColumn" /> FROM sys_user WHERE username = #{username}
+	</select>
+	
+	<!-- 通过ID进行查询 -->
+	<select id="get" resultType="User">
+	    SELECT <include refid="userColumn" /> FROM sys_user WHERE id = #{id}
+	</select>
+	
+	<!-- 按条件查询所有，用作分页功能 -->
+	<select id="findList" resultType="User">
+	    SELECT <include refid="userColumn" /> FROM sys_user 
+	    <where>
+            <if test="username != null">
+               AND username LIKE concat('%',#{username},'%')
+            </if>
+        </where>
+	</select>
+
+	<!-- 插入用户 -->
+	<insert id="insert"  parameterType="User" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO sys_user(
+			username,
+			password,
+			phone,
+			headImg,
+			startTime,
+			endTime
+		) VALUES (
+			#{username},
+			#{password},
+			#{phone},
+			#{headImg},
+			#{startTime},
+			#{endTime}
+		)
+	</insert>
+	
+	<!-- 更新用户 -->
+	<update id="update">
+		UPDATE sys_user
+		<trim prefix="set" suffixOverrides=",">
+			<if test="password != null and password != ''">password = #{password},</if>
+			phone = #{phone},
+			headImg = #{headImg},
+			startTime = #{startTime},
+			endTime = #{endTime}
+		 </trim>
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 根据ID删除用户 -->
+	<delete id="delete">
+		DELETE FROM sys_user WHERE id = #{id}
+	</delete>
+	
+	<!-- 删除用户和角色关联表数据 -->
+	<delete id="deleteUserRole">
+		DELETE FROM sys_user_role WHERE user_id = #{id}
+	</delete>
+	
+	<!-- 插入用户和角色关联表数据 -->
+	<insert id="insertUserRole">
+		INSERT INTO sys_user_role(user_id, role_id)
+		<foreach collection="roleIds" item="roleId" separator=" union all ">
+			SELECT #{id}, #{roleId} FROM dual
+		</foreach>
+	</insert>
+	
+</mapper>

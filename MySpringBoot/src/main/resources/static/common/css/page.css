@@ -1,0 +1,125 @@
+.fixed-table-pagination div.pagination,
+.fixed-table-pagination div.pagination-roll,
+.fixed-table-pagination .pagination-detail {
+    margin-top: 0px;
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+
+.pagination-detail{
+	 margin-top: -5px !important;
+}
+
+.fixed-table-pagination div.pagination-roll .pagination,
+.fixed-table-pagination div.pagination .pagination {
+    margin: 0;
+}
+
+.fixed-table-pagination .pagination a {
+    padding: 6px 12px;
+    /* line-height: 1.428571429; */
+}
+
+.fixed-table-pagination .pagination-info {
+    line-height: 34px;
+    margin-right: 5px;
+}
+
+.fixed-table-pagination .btn-group {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.fixed-table-pagination .dropup .dropdown-menu {
+    margin-bottom: 0;
+}
+
+.fixed-table-pagination .page-list {
+    display: inline-block;
+}
+.pull-left {
+	float: left;
+}
+.pull-right {
+	float: right;
+}
+.aPage{
+	padding: 6px 10px !important;
+}
+.aPage-left {
+	border: solid #c2cad8;
+	border-top-width: 1px;
+	border-bottom-width: 1px;
+	border-left-width: 1px;
+	border-right-width: 0px;
+    color: #777;
+    font-size: 16px;
+}
+
+.aPage-left:hover {
+	text-decoration: none !important;
+}
+
+.aPage-right {
+	border: solid #c2cad8;
+	border-top-width: 1px;
+	border-bottom-width: 1px;
+	border-left-width: 1px;
+	border-right-width: 1px;
+    color: #777;
+    font-size: 16px;
+    text-decoration: none;
+}
+
+.aPage-right:hover {
+	text-decoration: none !important;
+}
+
+.aPage-middle {
+	border: solid #c2cad8;
+	border-top-width: 1px;
+	border-bottom-width: 1px;
+	border-left-width: 1px;
+	border-right-width: 0px;
+    color: #777;
+    font-size: 16px;
+    text-decoration: none;
+}
+
+.aPage-middle:hover {
+	text-decoration: none !important;
+}
+
+.page-right-active > a {
+	background-color: #dddddd !important;
+}
+
+.page-btn {
+	padding: 4px 10px;
+    font-size: 14px;
+}
+
+.page-ul {
+	min-width: 53px;
+}
+
+.page-li {
+	font-size: 13px;
+    padding-left: 8px;
+    height: 23px;
+}
+
+.page-li:hover {
+	background-color: #dddddd
+}
+.page-li > a {
+	color: #333 ;
+}
+.page-a-active {
+	background-color: #dddddd
+}
+
+.page-no-click{
+	cursor: not-allowed;
+}
