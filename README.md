@@ -1,2 +1,7 @@
 # SpringBoot-Mysql-Redis-RabbitMQ-Shiro
-springboot项目，记录了我的学习之路/This is my springboot project. Recorded my learning path
+可以直接使用的后台，主要的架构：
+	  Spring Boot  Mybatis Druid Pagehelper Redis Shiro RabbitMQ Freemarker poi 等等。
+附上几张效果图
+![image](img/1.png)
+![image](img/2.png)
+![image](img/3.png)
